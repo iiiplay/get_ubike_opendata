@@ -2,9 +2,9 @@ name: collect-ubike-data
 
 on:
   schedule:
-    # 每 5 分鐘觸發一次（UTC 時間，但對定時抓資料沒影響）
-    # 注意：GitHub 排程不保證準時，尖峰時可能延遲或偶爾跳過
-    - cron: '*/5 * * * *'
+    # 每 10 分鐘觸發一次。GitHub 對高頻排程會降級，10 分鐘比 5 分鐘更可能準時跑
+    # 注意：GitHub 排程仍不保證準時，尖峰時可能延遲或偶爾跳過
+    - cron: '*/10 * * * *'
   workflow_dispatch:   # 允許在 GitHub 網頁手動按按鈕觸發，方便測試
 
 # 避免上一次還沒跑完、下一次又開始造成 commit 衝突
