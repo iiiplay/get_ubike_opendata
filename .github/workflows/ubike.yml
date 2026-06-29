@@ -1,0 +1,46 @@
+name: collect-ubike-data
+
+on:
+  schedule:
+    # 每 5 分鐘觸發一次（UTC 時間，但對定時抓資料沒影響）
+    # 注意：GitHub 排程不保證準時，尖峰時可能延遲或偶爾跳過
+    - cron: '*/5 * * * *'
+  workflow_dispatch:   # 允許在 GitHub 網頁手動按按鈕觸發，方便測試
+
+# 避免上一次還沒跑完、下一次又開始造成 commit 衝突
+concurrency:
+  group: collect-ubike-data
+  cancel-in-progress: false
+
+permissions:
+  contents: write   # 需要寫入權限才能把 ubike.db commit 回 repo
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install pandas
+
+      - name: Fetch YouBike data
+        run: python get_ubike_data.py
+
+      - name: Commit updated database
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add ubike.db
+          if git diff --staged --quiet; then
+            echo "沒有新資料，略過 commit"
+          else
+            git commit -m "update ubike.db $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+            git push
+          fi
