@@ -18,6 +18,8 @@ permissions:
 jobs:
   collect:
     runs-on: ubuntu-latest
+    env:
+      TZ: Asia/Taipei   # 把機器時區設成台北（UTC+8），log 與 commit 時間才正確
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
